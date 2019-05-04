@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         android:layout_marginEnd="1dp"
         android:layout_marginBottom="1dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/firewireslogo" />
+        android:src="@drawable/icon_robotcontroller" />
 
     <TextView
       android:id="@+id/textDeviceName"
