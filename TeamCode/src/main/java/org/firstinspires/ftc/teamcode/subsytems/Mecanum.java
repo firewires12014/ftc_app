@@ -8,5 +8,16 @@ import java.util.List;
 public class Mecanum {
 
     private List<DcMotor> motors;
-    private List<DcMotor> encoders;
+
+    public Mecanum(List<DcMotor> motors){
+        this.motors = motors;
+    }
+
+    private void setPowerAll(double powerFR, double powerFL, double powerBR, double powerBL){
+        motors.get(0).setPower(powerFR);
+        motors.get(1).setPower(powerFL);
+        motors.get(2).setPower(powerBR);
+        motors.get(3).setPower(powerBL);
+    }
+
 }
