@@ -2,18 +2,23 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.subsytems.Mecanum;
 import org.firstinspires.ftc.teamcode.util.Utility;
 
-@TeleOp(name = "TeleOp", group = "bot")
+@TeleOp(name = "FullSpeed Tele Op", group = "bot")
 
-public class MecanumTeleOp extends OpMode {
+public class FullSpeedMec extends OpMode {
 
     DcMotor fr, fl, br, bl;
     DcMotor arm;
@@ -22,6 +27,10 @@ public class MecanumTeleOp extends OpMode {
 
     double frPower, flPower, brPower, blPower;
     final double SCALE_FACTOR = 255;
+
+    private int globalAngle;
+    BNO055IMU imu;
+    Orientation lastAngles = new Orientation();
 
     private Utility firebot = new Utility();
 
@@ -33,6 +42,15 @@ public class MecanumTeleOp extends OpMode {
         bl = hardwareMap.dcMotor.get("backLeft");
         arm = hardwareMap.dcMotor.get("arm");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
+        parameters.loggingEnabled = false;
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
     }
 
     @Override
@@ -47,6 +65,7 @@ public class MecanumTeleOp extends OpMode {
         float hsvValues[] = {0F, 0F, 0F};
 
         //Declaring and initializing gamepad controls
+        telemetry.addData("Current Angle", getHeading());
 
         //Joystick intialization and conditioning
         //original configuration: db: 0 , off: 0.05 , gain: 0.9
@@ -73,11 +92,11 @@ public class MecanumTeleOp extends OpMode {
         rightBumper2 = false;
 
         //Mecanum values
-        double maxPower = .5; //Maximum power for power range
+        double maxPower = .99; //Maximum power for power range
         double yMove = firebot.joystick_conditioning(gamepad1.left_stick_y, 0, 0.05, 0.9);
         double xMove = firebot.joystick_conditioning(gamepad1.left_stick_x, 0, 0.05, 0.9);
         double cMove = firebot.joystick_conditioning(gamepad1.right_stick_x, 0, 0.05, 0.9);
-        double armPower  =  -gamepad2.left_stick_y * .249;
+        double armPower  =  -gamepad2.left_stick_y * 1;
         double frontLeftPower; //Front Left motor power
         double frontRightPower = 0; //Front Right motor power
         double backLeftPower; //Back Left motor power
@@ -117,7 +136,7 @@ public class MecanumTeleOp extends OpMode {
             /*((x - 1.5)^3 + 1.5(x - 1.5)^2) + 0.5) D(0 , 1.5] Max/n = 1.5 */
             //Alternative inputs active for drive
 
-                //Strafe left
+            //Strafe left
 //            if(gamepad1LeftTrigger > 0){
 //                robot.frontLeft.setPower(gamepad1LeftTrigger);
 //                robot.frontRight.setPower(gamepad1LeftTrigger);
@@ -135,56 +154,60 @@ public class MecanumTeleOp extends OpMode {
 //
 //            }
 
-                //Full forward power
-                if(dpadUp){
-                    fl.setPower(-1);
-                    fr.setPower(1);
-                    bl.setPower(-1);
-                    br.setPower(1);
-                }
-
-                //Full reverse power
-                if (dpadDown){
-                    fl.setPower(1);
-                    fr.setPower(-1);
-                    bl.setPower(1);
-                    br.setPower(-1);
-                }
-
-                if(dpadLeft){
-                    fl.setPower(1);
-                    fr.setPower(1);
-                    bl.setPower(-1);
-                    br.setPower(-1);
-                }
-
-                if(dpadRight) {
-                    fl.setPower(-1);
-                    fr.setPower(-1);
-                    bl.setPower(1);
-                    br.setPower(1);
-                }
+            //Full forward power
+            if(dpadUp){
+                fl.setPower(-1);
+                fr.setPower(1);
+                bl.setPower(-1);
+                br.setPower(1);
             }
 
-            if(gamepad1.a)
-            {
-                fr.setPower(0.4);
+            //Full reverse power
+            if (dpadDown){
+                fl.setPower(1);
+                fr.setPower(-1);
+                bl.setPower(1);
+                br.setPower(-1);
             }
 
-            if(gamepad1.b)
-            {
-                fl.setPower(0.4);
+            if(dpadLeft){
+                fl.setPower(1);
+                fr.setPower(1);
+                bl.setPower(-1);
+                br.setPower(-1);
             }
 
-            if(gamepad1.y)
-            {
-                br.setPower(0.4);
+            if(dpadRight) {
+                fl.setPower(-1);
+                fr.setPower(-1);
+                bl.setPower(1);
+                br.setPower(1);
             }
+        }
+        //45 deg - 15
+        //90 deg - 45 (43?)
+        //
 
-            if(gamepad1.x)
-            {
-                bl.setPower(0.4);
-            }
+
+        if(gamepad1.a)
+        {
+            fr.setPower(0.4);
+        }
+
+        if(gamepad1.b)
+        {
+            fl.setPower(0.4);
+        }
+
+        if(gamepad1.y)
+        {
+            br.setPower(0.4);
+        }
+
+        if(gamepad1.x)
+        {
+            bl.setPower(0.4);
+        }
 
         // Send calculated power to arm
         if(hsvValues[0] > 180 && gamepad2.left_stick_y > 0) {
@@ -207,6 +230,32 @@ public class MecanumTeleOp extends OpMode {
     }
 
 
+    private double getAngle() {
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+        globalAngle += deltaAngle;
+        lastAngles = angles;
+        return globalAngle;
+    }
+
+    public double getHeading(){
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return(angles.firstAngle+360)%360;
+
+    }
+
+    public double getError(double targetAngle){
+        double angleError = 0;
+
+        angleError = (targetAngle - getHeading());
+        angleError -= (360 * Math.floor(0.5 + ((angleError)/360.0)));
+
+        return angleError;
+    }
 
 
     @Override
