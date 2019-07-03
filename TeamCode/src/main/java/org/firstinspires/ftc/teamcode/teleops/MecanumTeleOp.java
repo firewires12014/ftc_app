@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.subsytems.Mecanum;
@@ -16,12 +17,17 @@ import org.firstinspires.ftc.teamcode.util.Utility;
 public class MecanumTeleOp extends OpMode {
 
     DcMotor fr, fl, br, bl;
-    DcMotor arm;
+    DcMotor intakeArm, transferArm;
+
+    Servo dumper;
 
     ColorSensor colorSensor;
 
     double frPower, flPower, brPower, blPower;
+
     final double SCALE_FACTOR = 255;
+    final double TERMINAL_POSITION = 0.0;
+
 
     private Utility firebot = new Utility();
 
@@ -31,8 +37,10 @@ public class MecanumTeleOp extends OpMode {
         fl = hardwareMap.dcMotor.get("frontLeft");
         br = hardwareMap.dcMotor.get("backRight");
         bl = hardwareMap.dcMotor.get("backLeft");
-        arm = hardwareMap.dcMotor.get("arm");
+        intakeArm = hardwareMap.dcMotor.get("intakeArm");
+        transferArm = hardwareMap.dcMotor.get("transferArm");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        dumper = hardwareMap.servo.get("dumper");
     }
 
     @Override
@@ -42,16 +50,24 @@ public class MecanumTeleOp extends OpMode {
 
     @Override
     public void loop(){
+        //Set Position
+        dumper.setPosition(TERMINAL_POSITION);
 
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
 
         //Declaring and initializing gamepad controls
 
-        //Joystick intialization and conditioning
+        //Misc Joystick intialization and conditioning
         //original configuration: db: 0 , off: 0.05 , gain: 0.9
         double gamepad2LeftY = firebot.joystick_conditioning(gamepad2.left_stick_y, 0, 0.05, 0.95);
-        double intakeAdjustPower = firebot.joystick_conditioning(gamepad2.right_stick_y, 0, 0.05, 0.95);
+        double gamepad2RightY = firebot.joystick_conditioning(gamepad2.right_stick_y, 0, 0.05, 0.95);
+
+        //Testing servo buttons
+        boolean gamepad1A = gamepad1.a;
+        boolean gamepad1X = gamepad1.x;
+        boolean gamepad1Y = gamepad1.y;
+        boolean gamepad1B = gamepad1.b;
 
         //Trigger initialization and conditioning
         double gamepad1RightTrigger = gamepad1.right_trigger;
@@ -165,42 +181,48 @@ public class MecanumTeleOp extends OpMode {
                     br.setPower(1);
                 }
             }
-
-            if(gamepad1.a)
-            {
-                fr.setPower(0.4);
-            }
-
-            if(gamepad1.b)
-            {
-                fl.setPower(0.4);
-            }
-
-            if(gamepad1.y)
-            {
-                br.setPower(0.4);
-            }
-
-            if(gamepad1.x)
-            {
-                bl.setPower(0.4);
-            }
+            //Drivetrain Debugging
+//            if(gamepad1.a)
+//            {
+//                fr.setPower(0.4);
+//            }
+//
+//            if(gamepad1.b)
+//            {
+//                fl.setPower(0.4);
+//            }
+//
+//            if(gamepad1.y)
+//            {
+//                br.setPower(0.4);
+//            }
+//
+//            if(gamepad1.x)
+//            {
+//                bl.setPower(0.4);
+//            }
+        //Servo Debugging
+        if (gamepad1A)dumper.setPosition(.25);
+        if (gamepad1B)dumper.setPosition(.5);
+        if (gamepad1Y)dumper.setPosition(.75);
+        if (gamepad1X)dumper.setPosition(1.0);
 
         // Send calculated power to arm
-        if(hsvValues[0] > 180 && gamepad2.left_stick_y > 0) {
-            arm.setPower(0);
+        if(hsvValues[0] > 180 && gamepad2LeftY > 0) {
+            intakeArm.setPower(0);
         }
 
-        else if(gamepad2.left_stick_y > 0){
-            arm.setPower(armPower * .8);
+        else if(gamepad2LeftY > 0){
+            intakeArm.setPower(armPower * .8);
         }
 
-        else if(gamepad2.left_stick_y < 0){
-            arm.setPower(armPower);
+        else if(gamepad2LeftY < 0){
+            intakeArm.setPower(armPower);
         }
 
-        else{arm.setPower(0);}
+        else{intakeArm.setPower(0);}
 
+        transferArm.setPower(gamepad2RightY * .5);
 
         telemetry.addData("Arm Power", armPower);
         telemetry.update();
