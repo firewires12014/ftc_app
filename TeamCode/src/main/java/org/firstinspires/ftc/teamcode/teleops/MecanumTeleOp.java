@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.util.Utility;
 public class MecanumTeleOp extends OpMode {
 
     DcMotor fr, fl, br, bl;
-    DcMotor intakeArm, transferArm;
+    DcMotor intakeArm, dumperArm, hangElevator;
 
     Servo dumper;
 
@@ -38,9 +38,13 @@ public class MecanumTeleOp extends OpMode {
         br = hardwareMap.dcMotor.get("backRight");
         bl = hardwareMap.dcMotor.get("backLeft");
         intakeArm = hardwareMap.dcMotor.get("intakeArm");
-        transferArm = hardwareMap.dcMotor.get("transferArm");
+        dumperArm = hardwareMap.dcMotor.get("dumperArm");
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        hangElevator = hardwareMap.dcMotor.get("hangElevator");
         dumper = hardwareMap.servo.get("dumper");
+
+        //Set Position
+        dumper.setPosition(TERMINAL_POSITION);
     }
 
     @Override
@@ -50,8 +54,7 @@ public class MecanumTeleOp extends OpMode {
 
     @Override
     public void loop(){
-        //Set Position
-        dumper.setPosition(TERMINAL_POSITION);
+
 
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
@@ -222,10 +225,16 @@ public class MecanumTeleOp extends OpMode {
 
         else{intakeArm.setPower(0);}
 
-        transferArm.setPower(gamepad2RightY * .5);
+        dumperArm.setPower(gamepad2RightY * .5);
 
-        telemetry.addData("Arm Power", armPower);
-        telemetry.update();
+        if (gamepad1RightTrigger > 0){
+            hangElevator.setPower(-gamepad1RightTrigger);
+
+        }
+        else {
+            hangElevator.setPower(gamepad1LeftTrigger);
+        }
+
     }
 
 
