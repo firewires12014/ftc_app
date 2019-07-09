@@ -66,27 +66,6 @@ public class Depot extends LinearOpMode {
 
     private String sampleLocation = "UNKNOWN";
 
-//    @Override
-//    public void runOpMode() {
-//        robot.init(hardwareMap);
-//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-//        parameters.mode = BNO055IMU.SensorMode.IMU;
-//        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-//        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-//        parameters.loggingEnabled = false;
-//        imu = hardwareMap.get(BNO055IMU.class, "imu");
-//        imu.initialize(parameters);
-//
-//        robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        robot.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        robot.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//        waitForStart();
-//
-//        rotate(90);
-//
-//    }
 
     @Override
     public void runOpMode() {
@@ -362,11 +341,7 @@ public class Depot extends LinearOpMode {
         sleep(200);
     }
 
-    public void lowerArm() {
-        robot.intakeAdjust.setPower(1);
-        sleep(800);
-        robot.intakeAdjust.setPower(0);
-    }
+
 
     /*
      * forward moves the robot forward at the prescribed speed for the prescribed distance

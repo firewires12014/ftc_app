@@ -345,11 +345,6 @@ public class Crater extends LinearOpMode{
         sleep(200);
     }
 
-    public void lowerArm() {
-        robot.intakeAdjust.setPower(1);
-        sleep(800);
-        robot.intakeAdjust.setPower(0);
-    }
 
     /*
      * forward moves the robot forward at the prescribed speed for the prescribed distance
