@@ -12,12 +12,13 @@ public class Hardware
     /* Public OpMode members. */
 
     //Motors
-    public DcMotor frontLeft, backLeft, frontRight, backRight, hangElevator, intakeElevator, intakeAdjust = null;
+    public DcMotor frontLeft, backLeft, frontRight, backRight, hangElevator, intakeArm, dumperArm = null;
 
     //Servos
-    //public CRServo servoIntake;
+    public Servo dumper;
 
     //Sensors
+    ColorSensor colorSensor;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -33,13 +34,15 @@ public class Hardware
         hwMap = ahwMap;
 
         //Motor hardware mapping
-        frontLeft  = hwMap.get(DcMotor.class, "frontLeft");
-        backLeft = hwMap.get(DcMotor.class, "backLeft");
-        frontRight  = hwMap.get(DcMotor.class, "frontRight");
-        backRight = hwMap.get(DcMotor.class, "backRight");
-        //hangElevator = hwMap.get(DcMotor.class, "hangElevator");
-        //intakeElevator = hwMap.get(DcMotor.class, "intakeElevator");
-        //intakeAdjust = hwMap.get(DcMotor.class, "intakeAdjust");
+        frontRight = ahwMap.dcMotor.get("frontRight");
+        frontLeft = ahwMap.dcMotor.get("frontLeft");
+        backRight = ahwMap.dcMotor.get("backRight");
+        backLeft = ahwMap.dcMotor.get("backLeft");
+        intakeArm = ahwMap.dcMotor.get("intakeArm");
+        dumperArm = ahwMap.dcMotor.get("dumperArm");
+        colorSensor = ahwMap.colorSensor.get("colorSensor");
+        hangElevator = ahwMap.dcMotor.get("hangElevator");
+        dumper = ahwMap.servo.get("dumper");
 
 
 
@@ -53,9 +56,9 @@ public class Hardware
         backLeft.setPower(0);
         frontRight.setPower(0);
         backRight.setPower(0);
-//        hangElevator.setPower(0);
-//        intakeElevator.setPower(0);
-//        intakeAdjust.setPower(0);
+        hangElevator.setPower(0);
+        dumperArm.setPower(0);
+        intakeArm.setPower(0);
 
         //Continuous Servo set powers
 
@@ -64,12 +67,10 @@ public class Hardware
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        hangElevator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        dumperArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-//        hangElevator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        intakeElevator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        intakeAdjust.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        intakeAdjust.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
     }
