@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.util.Utility;
 public class MecanumTeleOp extends OpMode {
 
     DcMotor fr, fl, br, bl;
-    DcMotor intakeArm, dumperArm, hangElevator;
+    DcMotor intakeArm, dumperArm, hangElevator, intake;
 
     Servo dumper;
 
@@ -37,10 +37,13 @@ public class MecanumTeleOp extends OpMode {
         fl = hardwareMap.dcMotor.get("frontLeft");
         br = hardwareMap.dcMotor.get("backRight");
         bl = hardwareMap.dcMotor.get("backLeft");
+        hangElevator = hardwareMap.dcMotor.get("hangElevator");
         intakeArm = hardwareMap.dcMotor.get("intakeArm");
         dumperArm = hardwareMap.dcMotor.get("dumperArm");
+        intake = hardwareMap.dcMotor.get("intake");
+
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        hangElevator = hardwareMap.dcMotor.get("hangElevator");
+
         dumper = hardwareMap.servo.get("dumper");
 
         //Set Position
@@ -71,6 +74,7 @@ public class MecanumTeleOp extends OpMode {
         boolean gamepad1X = gamepad1.x;
         boolean gamepad1Y = gamepad1.y;
         boolean gamepad1B = gamepad1.b;
+        boolean gamepad2A = gamepad2.a;
 
         //Trigger initialization and conditioning
         double gamepad1RightTrigger = gamepad1.right_trigger;
@@ -205,10 +209,11 @@ public class MecanumTeleOp extends OpMode {
 //                bl.setPower(0.4);
 //            }
         //Servo Debugging
-        if (gamepad1A)dumper.setPosition(.25);
-        if (gamepad1B)dumper.setPosition(.5);
+        if (gamepad1A)dumper.setPosition(.35);
+        if (gamepad1B)dumper.setPosition(.825);
         if (gamepad1Y)dumper.setPosition(.75);
         if (gamepad1X)dumper.setPosition(1.0);
+        if (gamepad2A)dumper.setPosition(0);
 
         // Send calculated power to arm
         if(hsvValues[0] > 180 && gamepad2LeftY > 0) {
@@ -233,6 +238,14 @@ public class MecanumTeleOp extends OpMode {
         }
         else {
             hangElevator.setPower(gamepad1LeftTrigger);
+        }
+
+        if (gamepad2RightTrigger > 0){
+            intake.setPower(-gamepad2RightTrigger);
+
+        }
+        else {
+            intake.setPower(gamepad2LeftTrigger);
         }
 
     }
